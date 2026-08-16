@@ -1,0 +1,142 @@
+REQUISITOS — SIMULAÇÃO DA COM
+
+Objetivo:
+Simular o STM32 sem hardware, enviando pelo Python o mesmo
+protocolo proprietário em HEX que o STM32 enviará ao C#.
+
+
+1. REQUISITOS
+
+- Windows
+- Python instalado
+- pip
+- com0com
+- Biblioteca Python: pyserial
+- Projeto C#
+
+
+2. INSTALAR PYSERIAL
+
+No PowerShell:
+
+python -m pip install pyserial
+
+Testar:
+
+python -c "import serial; print('PySerial OK')"
+
+
+3. CONFIGURAR COM0COM
+
+Abrir o "Setup Command Prompt" do com0com.
+
+Criar um par de portas:
+
+install PortName=COM5,EmuBR=yes PortName=COM6
+
+Configurar:
+
+change CNCA2 EmuBR=yes
+change CNCB2 EmuBR=yes
+
+Verificar:
+
+list
+
+Esperado:
+
+CNCA2 PortName=COM5,EmuBR=yes
+CNCB2 PortName=COM6,EmuBR=yes
+
+
+4. PORTAS UTILIZADAS
+
+Python (simulador do STM32):
+
+COM5
+
+C# (Gateway):
+
+COM6
+
+IMPORTANTE:
+As duas portas fazem parte do mesmo par virtual.
+Não utilizar a mesma porta nos dois programas.
+
+
+5. SIMULADOR PYTHON
+
+Arquivo:
+
+simulador_serial.py
+
+Configuração:
+
+PORTA_VIRTUAL = "COM5"
+BAUD_RATE = 115200
+
+Executar:
+
+python simulador_serial.py
+
+O Python simula o STM32 + MQ-135, gera valores ADC de
+0 a 4095, define o estado do filtro e envia os pacotes
+pela COM5.
+
+IMPORTANTE:
+O C# deve estar conectado à COM6 para receber os dados.
+
+
+6. PROTOCOLO ENVIADO
+
+Cada pacote possui 8 bytes:
+
+AA 01 02 FILTRO ADC_H ADC_L CHECKSUM CC
+
+Onde:
+
+AA = início
+01 = versão
+02 = leitura do sensor
+00 = filtro desativado
+01 = filtro ativado
+ADC_H = byte alto do ADC
+ADC_L = byte baixo do ADC
+CHECKSUM = soma dos bytes 1 a 5
+CC = fim
+
+
+7. FLUXO
+
+Python
+(simula STM32 + MQ-135)
+        ↓
+      COM5
+        ↓
+     com0com
+        ↓
+      COM6
+        ↓
+       C#
+        ↓
+      JSON
+        ↓
+    Node.js API
+        ↓
+    Python / IA
+        ↓
+   Classificação
+
+
+8. ORDEM DE EXECUÇÃO
+
+1. Criar/configurar COM5 ↔ COM6.
+2. Iniciar o C# na COM6.
+3. Iniciar o simulador Python na COM5.
+4. Verificar os pacotes HEX recebidos pelo C#.
+5. Verificar o JSON enviado para a API.
+6. Verificar a classificação.
+
+O simulador Python substitui temporariamente o STM32.
+Quando o STM32 real for utilizado, o Python será removido
+e o C# continuará recebendo o mesmo protocolo.
