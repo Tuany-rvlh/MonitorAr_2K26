@@ -2,27 +2,23 @@
 <html lang="pt-BR">
 
 <head>
-
     <!-- =========================================================
-         CONFIGURAÇÕES BÁSICAS DA PÁGINA
+         CONFIGURAÇÕES BÁSICAS
          ========================================================= -->
 
-    <!-- Permite utilizar caracteres como ç, ã, é etc. -->
     <meta charset="UTF-8">
-
-    <!-- Faz o Dashboard se adaptar a celular e computador. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Nome exibido na aba do navegador. -->
     <title>MonitorAr | Dashboard</title>
 
+    <!-- Chart.js é utilizado para criar o gráfico de CO₂ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- =========================================================
          ESTILOS
          ========================================================= -->
 
     <style>
-
         /* -------------------------------------------------------
            CONFIGURAÇÕES GERAIS
            ------------------------------------------------------- */
@@ -33,626 +29,640 @@
             padding: 0;
         }
 
-
         body {
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
+            font-family: Arial, Helvetica, sans-serif;
             background: #f4f7fb;
-
             color: #1f2937;
-
             min-height: 100vh;
-
+            transition: background 0.5s ease, color 0.5s ease;
         }
-
 
         /* -------------------------------------------------------
            CABEÇALHO
            ------------------------------------------------------- */
 
         header {
-
             background: #111827;
-
             color: white;
-
             padding: 20px 40px;
-
             display: flex;
-
             align-items: center;
-
             justify-content: space-between;
-
             border-bottom: 4px solid #2563eb;
-
+            transition: background 0.5s ease, border-color 0.5s ease;
         }
-
 
         .logo {
-
             display: flex;
-
             align-items: center;
-
             gap: 14px;
-
         }
-
 
         .logo-icon {
-
             width: 44px;
-
             height: 44px;
-
             border-radius: 10px;
-
             background: #2563eb;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             font-size: 23px;
-
+            transition: background 0.5s ease;
         }
-
 
         .logo h1 {
-
             font-size: 22px;
-
         }
-
 
         .logo p {
-
             font-size: 13px;
-
             color: #9ca3af;
-
             margin-top: 3px;
-
         }
 
+        /* -------------------------------------------------------
+           ÁREA DIREITA DO CABEÇALHO
+           ------------------------------------------------------- */
+
+        .header-direita {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* -------------------------------------------------------
+           STATUS
+           ------------------------------------------------------- */
 
         .status {
-
             display: flex;
-
             align-items: center;
-
             gap: 8px;
-
             font-size: 14px;
-
             color: #d1d5db;
-
         }
-
 
         .status-dot {
-
             width: 10px;
-
             height: 10px;
-
             background: #22c55e;
-
             border-radius: 50%;
-
+            transition: background 0.3s ease;
         }
 
+        /* -------------------------------------------------------
+           BOTÃO DO TEMA
+           ------------------------------------------------------- */
+
+        .botao-tema {
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 10px;
+            background: #1f2937;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .botao-tema:hover {
+            background: #374151;
+            transform: scale(1.05);
+        }
 
         /* -------------------------------------------------------
            CONTEÚDO PRINCIPAL
            ------------------------------------------------------- */
 
         main {
-
             max-width: 1400px;
-
             margin: auto;
-
             padding: 35px;
-
         }
-
 
         .section-title {
-
             margin-bottom: 20px;
-
         }
-
 
         .section-title h2 {
-
             font-size: 24px;
-
             color: #111827;
-
         }
-
 
         .section-title p {
-
             color: #6b7280;
-
             margin-top: 5px;
-
         }
 
-
         /* -------------------------------------------------------
-           CARDS PRINCIPAIS
+           CARDS
            ------------------------------------------------------- */
 
         .cards {
-
             display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
-
             margin-bottom: 30px;
-
         }
-
 
         .card {
-
             background: white;
-
             border-radius: 14px;
-
             padding: 24px;
-
-            box-shadow:
-                0 4px 15px
-                rgba(0, 0, 0, 0.06);
-
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
             border: 1px solid #e5e7eb;
-
+            transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
         }
-
 
         .card-label {
-
             font-size: 13px;
-
             color: #6b7280;
-
             margin-bottom: 10px;
-
             text-transform: uppercase;
-
             letter-spacing: 0.5px;
-
         }
-
 
         .card-value {
-
             font-size: 32px;
-
             font-weight: bold;
-
             color: #111827;
-
+            transition: color 0.5s ease;
         }
-
 
         .card-unit {
-
             font-size: 14px;
-
             color: #6b7280;
-
             margin-left: 5px;
-
         }
 
-
         /* -------------------------------------------------------
-           QUALIDADE DO AR
+           QUALIDADE
            ------------------------------------------------------- */
 
         .quality {
-
             display: inline-block;
-
             padding: 8px 15px;
-
             border-radius: 20px;
-
             font-weight: bold;
-
             font-size: 15px;
-
             background: #e5e7eb;
-
+            transition: background 0.5s ease, color 0.5s ease, box-shadow 0.5s ease;
         }
-
 
         .excellent {
-
             background: #dcfce7;
-
             color: #166534;
-
         }
-
 
         .good {
-
             background: #dbeafe;
-
             color: #1d4ed8;
-
         }
-
 
         .moderate {
-
             background: #fef3c7;
-
             color: #92400e;
-
         }
-
 
         .bad {
-
             background: #fed7aa;
-
             color: #9a3412;
-
         }
-
 
         .critical {
-
             background: #fee2e2;
-
             color: #991b1b;
-
         }
 
-
         /* -------------------------------------------------------
-           ÁREA INFERIOR
+           GRID PRINCIPAL
            ------------------------------------------------------- */
 
         .grid {
-
             display: grid;
-
-            grid-template-columns:
-                2fr 1fr;
-
+            grid-template-columns: 2fr 1fr;
             gap: 20px;
-
         }
 
+        /* -------------------------------------------------------
+           PAINÉIS
+           ------------------------------------------------------- */
 
         .panel {
-
             background: white;
-
             border-radius: 14px;
-
             padding: 24px;
-
-            box-shadow:
-                0 4px 15px
-                rgba(0, 0, 0, 0.06);
-
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
             border: 1px solid #e5e7eb;
-
+            transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
         }
-
 
         .panel h3 {
-
             font-size: 18px;
-
             margin-bottom: 20px;
-
             color: #111827;
-
         }
-
 
         /* -------------------------------------------------------
            TABELA
            ------------------------------------------------------- */
 
         table {
-
             width: 100%;
-
             border-collapse: collapse;
-
         }
-
 
         th {
-
             text-align: left;
-
             font-size: 12px;
-
             color: #6b7280;
-
             padding: 12px;
-
-            border-bottom:
-                1px solid #e5e7eb;
-
+            border-bottom: 1px solid #e5e7eb;
             text-transform: uppercase;
-
         }
-
 
         td {
-
             padding: 13px 12px;
-
-            border-bottom:
-                1px solid #f1f5f9;
-
+            border-bottom: 1px solid #f1f5f9;
             font-size: 14px;
-
         }
-
 
         tr:hover {
-
             background: #f8fafc;
-
         }
-
 
         /* -------------------------------------------------------
            ESTATÍSTICAS
            ------------------------------------------------------- */
 
         .stat {
-
             display: flex;
-
-            justify-content:
-                space-between;
-
+            justify-content: space-between;
             align-items: center;
-
             padding: 15px 0;
-
-            border-bottom:
-                1px solid #e5e7eb;
-
+            border-bottom: 1px solid #e5e7eb;
         }
-
 
         .stat:last-child {
-
             border-bottom: none;
-
         }
-
 
         .stat-name {
-
             color: #6b7280;
-
             font-size: 14px;
-
         }
-
 
         .stat-value {
-
             font-size: 20px;
-
             font-weight: bold;
-
             color: #111827;
-
         }
 
-
         /* -------------------------------------------------------
-           BARRA DE CO2
+           BARRA DE CO₂
            ------------------------------------------------------- */
 
         .co2-bar-container {
-
             margin-top: 20px;
-
         }
-
 
         .co2-bar {
-
             height: 14px;
-
             width: 100%;
-
-            background:
-                #e5e7eb;
-
+            background: #e5e7eb;
             border-radius: 10px;
-
             overflow: hidden;
-
         }
-
 
         .co2-progress {
-
             height: 100%;
-
             width: 0%;
-
-            background:
-                #2563eb;
-
+            background: #2563eb;
             border-radius: 10px;
-
-            transition:
-                width 0.5s ease;
-
+            transition: width 0.5s ease, background 0.5s ease, box-shadow 0.5s ease;
         }
-
 
         .co2-scale {
-
             display: flex;
-
-            justify-content:
-                space-between;
-
+            justify-content: space-between;
             font-size: 11px;
-
             color: #6b7280;
-
             margin-top: 6px;
-
         }
 
+        /* -------------------------------------------------------
+           GRÁFICO
+           ------------------------------------------------------- */
+
+        .grafico-container {
+            margin-top: 25px;
+            height: 220px;
+        }
+
+        .grafico-titulo {
+            font-size: 15px !important;
+            margin-bottom: 10px !important;
+            color: #6b7280 !important;
+        }
+
+        /* -------------------------------------------------------
+           TENDÊNCIA
+           ------------------------------------------------------- */
+
+        .tendencia {
+            margin-top: 35px;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            border: 1px solid #e5e7eb;
+            transition: background 0.5s ease, border-color 0.5s ease;
+        }
+
+        .tendencia-label {
+            color: #6b7280;
+        }
+
+        .tendencia-icone {
+            font-size: 18px;
+        }
+
+        #tendenciaTexto {
+            font-weight: bold;
+            color: #111827;
+        }
 
         /* -------------------------------------------------------
            RODAPÉ
            ------------------------------------------------------- */
 
         footer {
-
             text-align: center;
-
             padding: 25px;
-
             color: #9ca3af;
-
             font-size: 13px;
-
         }
 
+        /* =======================================================
+           MODO ESCURO
+           ======================================================= */
 
-        /* -------------------------------------------------------
+        body.modo-escuro {
+            background: #0f172a;
+            color: #e5e7eb;
+        }
+
+        body.modo-escuro .section-title h2 {
+            color: #f8fafc;
+        }
+
+        body.modo-escuro .section-title p {
+            color: #94a3b8;
+        }
+
+        body.modo-escuro .card {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        }
+
+        body.modo-escuro .panel {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        }
+
+        body.modo-escuro .card-value {
+            color: #f8fafc;
+        }
+
+        body.modo-escuro .stat-value {
+            color: #f8fafc;
+        }
+
+        body.modo-escuro .card-label {
+            color: #94a3b8;
+        }
+
+        body.modo-escuro .stat-name {
+            color: #94a3b8;
+        }
+
+        body.modo-escuro .panel h3 {
+            color: #f8fafc;
+        }
+
+        body.modo-escuro th {
+            color: #94a3b8;
+            border-bottom-color: #334155;
+        }
+
+        body.modo-escuro td {
+            color: #e5e7eb;
+            border-bottom-color: #334155;
+        }
+
+        body.modo-escuro tr:hover {
+            background: #273449;
+        }
+
+        body.modo-escuro .co2-bar {
+            background: #334155;
+        }
+
+        body.modo-escuro .tendencia {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        body.modo-escuro .tendencia-label {
+            color: #94a3b8;
+        }
+
+        body.modo-escuro #tendenciaTexto {
+            color: #f8fafc;
+        }
+
+        body.modo-escuro .botao-tema {
+            background: #f8fafc;
+            color: #111827;
+        }
+
+        body.modo-escuro .botao-tema:hover {
+            background: #e2e8f0;
+        }
+
+        /* =======================================================
+           ALERTA CRÍTICO
+           ======================================================= */
+
+        body.alerta-critico {
+            background: #fff1f2;
+        }
+
+        body.alerta-critico header {
+            background: #7f1d1d;
+            border-bottom-color: #dc2626;
+        }
+
+        body.alerta-critico .logo-icon {
+            background: #dc2626;
+        }
+
+        body.alerta-critico .status-dot {
+            background: #ef4444 !important;
+            animation: piscarAlerta 0.8s infinite;
+        }
+
+        body.alerta-critico .status {
+            color: #fee2e2;
+        }
+
+        body.alerta-critico .card:first-child {
+            border: 2px solid #ef4444;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25);
+        }
+
+        body.alerta-critico #co2Atual {
+            color: #dc2626;
+        }
+
+        body.alerta-critico #co2Progress {
+            background: #dc2626;
+            box-shadow: 0 0 12px rgba(220, 38, 38, 0.7);
+        }
+
+        body.alerta-critico #qualidade {
+            background: #dc2626;
+            color: white;
+            animation: pulsarAlerta 1s infinite;
+        }
+
+        body.alerta-critico .tendencia {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        /* =======================================================
+           ALERTA CRÍTICO + MODO ESCURO
+           ======================================================= */
+
+        body.modo-escuro.alerta-critico {
+            background: #1c0b0b;
+        }
+
+        body.modo-escuro.alerta-critico .card {
+            background: #1f1a1a;
+        }
+
+        body.modo-escuro.alerta-critico .panel {
+            background: #1f1a1a;
+        }
+
+        body.modo-escuro.alerta-critico .tendencia {
+            background: #291313;
+            border-color: #7f1d1d;
+        }
+
+        /* =======================================================
+           ANIMAÇÕES
+           ======================================================= */
+
+        @keyframes piscarAlerta {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.3;
+                transform: scale(1.3);
+            }
+        }
+
+        @keyframes pulsarAlerta {
+            0%, 100% {
+                box-shadow: 0 0 0 rgba(220, 38, 38, 0);
+            }
+
+            50% {
+                box-shadow: 0 0 18px rgba(220, 38, 38, 0.7);
+            }
+        }
+
+        /* =======================================================
            RESPONSIVIDADE
-           ------------------------------------------------------- */
+           ======================================================= */
 
         @media (max-width: 1000px) {
-
             .cards {
-
-                grid-template-columns:
-                    repeat(2, 1fr);
-
+                grid-template-columns: repeat(2, 1fr);
             }
-
 
             .grid {
-
                 grid-template-columns: 1fr;
-
             }
-
         }
-
 
         @media (max-width: 600px) {
-
             header {
-
                 padding: 18px;
-
             }
-
 
             main {
-
                 padding: 20px;
-
             }
-
 
             .cards {
-
                 grid-template-columns: 1fr;
-
             }
-
 
             .status {
-
                 display: none;
-
             }
 
+            .header-direita {
+                gap: 10px;
+            }
         }
-
     </style>
-
 </head>
 
-
 <body>
-
 
     <!-- =========================================================
          CABEÇALHO
          ========================================================= -->
 
     <header>
-
         <div class="logo">
-
-            <div class="logo-icon">
-                ☁
-            </div>
+            <div class="logo-icon">☁</div>
 
             <div>
-
-                <h1>
-                    MonitorAr
-                </h1>
-
-                <p>
-                    Sistema de monitoramento da qualidade do ar
-                </p>
-
+                <h1>MonitorAr</h1>
+                <p>Sistema de monitoramento da qualidade do ar</p>
             </div>
-
         </div>
 
+        <div class="header-direita">
 
-        <div class="status">
+            <!-- Botão responsável por alternar entre tema claro e escuro -->
+            <button id="botaoTema" class="botao-tema" onclick="alternarTema()">🌙</button>
 
-            <div
-                class="status-dot"
-                id="statusDot">
+            <!-- Indicador visual da conexão com o sistema -->
+            <div class="status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Sistema conectado</span>
             </div>
-
-            <span id="statusText">
-                Sistema conectado
-            </span>
-
         </div>
-
     </header>
-
-
 
     <!-- =========================================================
          CONTEÚDO PRINCIPAL
@@ -660,20 +670,10 @@
 
     <main>
 
-
         <div class="section-title">
-
-            <h2>
-                Visão geral
-            </h2>
-
-            <p>
-                Monitoramento em tempo real das medições recebidas.
-            </p>
-
+            <h2>Visão geral</h2>
+            <p>Monitoramento em tempo real das medições recebidas.</p>
         </div>
-
-
 
         <!-- =====================================================
              CARDS
@@ -681,136 +681,65 @@
 
         <section class="cards">
 
-
-            <!-- CO2 -->
-
+            <!-- Card que mostra o valor atual de CO₂ -->
             <div class="card">
-
-                <div class="card-label">
-                    CO₂ atual
-                </div>
+                <div class="card-label">CO₂ atual</div>
 
                 <div>
-
-                    <span
-                        class="card-value"
-                        id="co2Atual">
-                        --
-                    </span>
-
-                    <span class="card-unit">
-                        ppm
-                    </span>
-
+                    <span class="card-value" id="co2Atual">--</span>
+                    <span class="card-unit">ppm</span>
                 </div>
-
             </div>
 
-
-            <!-- QUALIDADE -->
-
+            <!-- Card que mostra a classificação da qualidade do ar -->
             <div class="card">
+                <div class="card-label">Qualidade do ar</div>
 
-                <div class="card-label">
-                    Qualidade do ar
-                </div>
-
-                <div
-                    id="qualidade"
-                    class="quality">
+                <div id="qualidade" class="quality">
                     Aguardando...
                 </div>
-
             </div>
 
-
-            <!-- ADC -->
-
+            <!-- Card que mostra o valor bruto recebido do ADC -->
             <div class="card">
-
-                <div class="card-label">
-                    ADC
-                </div>
+                <div class="card-label">ADC</div>
 
                 <div>
-
-                    <span
-                        class="card-value"
-                        id="adcAtual">
-                        --
-                    </span>
-
-                    <span class="card-unit">
-                        / 4095
-                    </span>
-
+                    <span class="card-value" id="adcAtual">--</span>
+                    <span class="card-unit">/ 4095</span>
                 </div>
-
             </div>
 
-
-            <!-- FILTRO -->
-
+            <!-- Card que informa se o filtro está ativado -->
             <div class="card">
+                <div class="card-label">Filtro</div>
 
-                <div class="card-label">
-                    Filtro
-                </div>
-
-                <div
-                    class="card-value"
-                    id="filtroAtual"
-                    style="font-size: 24px;">
+                <div class="card-value" id="filtroAtual" style="font-size: 24px;">
                     --
                 </div>
-
             </div>
-
 
         </section>
 
-
-
         <!-- =====================================================
-             BARRA DE CO2
+             BARRA DE CO₂
              ===================================================== -->
 
-        <div class="panel"
-             style="margin-bottom: 20px;">
-
-            <h3>
-                Nível de CO₂
-            </h3>
+        <div class="panel" style="margin-bottom: 20px;">
+            <h3>Nível de CO₂</h3>
 
             <div class="co2-bar-container">
-
                 <div class="co2-bar">
-
-                    <div
-                        class="co2-progress"
-                        id="co2Progress">
-                    </div>
-
+                    <!-- A largura dessa div representa a porcentagem de CO₂ -->
+                    <div class="co2-progress" id="co2Progress"></div>
                 </div>
-
 
                 <div class="co2-scale">
-
-                    <span>
-                        0 ppm
-                    </span>
-
-                    <span>
-                        5000 ppm
-                    </span>
-
+                    <span>0 ppm</span>
+                    <span>5000 ppm</span>
                 </div>
-
             </div>
-
         </div>
-
-
 
         <!-- =====================================================
              PAINÉIS
@@ -818,68 +747,36 @@
 
         <section class="grid">
 
-
             <!-- =================================================
                  HISTÓRICO
                  ================================================= -->
 
             <div class="panel">
 
-                <h3>
-                    Últimas medições
-                </h3>
-
+                <h3>Últimas medições</h3>
 
                 <table>
-
                     <thead>
-
                         <tr>
-
-                            <th>
-                                Horário
-                            </th>
-
-                            <th>
-                                ADC
-                            </th>
-
-                            <th>
-                                CO₂
-                            </th>
-
-                            <th>
-                                Qualidade
-                            </th>
-
-                            <th>
-                                Filtro
-                            </th>
-
+                            <th>Horário</th>
+                            <th>ADC</th>
+                            <th>CO₂</th>
+                            <th>Qualidade</th>
+                            <th>Filtro</th>
                         </tr>
-
                     </thead>
 
-
+                    <!-- O JavaScript preenche este tbody com os dados do servidor -->
                     <tbody id="historico">
-
                         <tr>
-
-                            <td
-                                colspan="5"
-                                style="text-align:center;">
+                            <td colspan="5" style="text-align: center;">
                                 Aguardando medições...
                             </td>
-
                         </tr>
-
                     </tbody>
-
                 </table>
 
             </div>
-
-
 
             <!-- =================================================
                  ESTATÍSTICAS
@@ -887,314 +784,752 @@
 
             <div class="panel">
 
-                <h3>
-                    Estatísticas
-                </h3>
-
+                <h3>Estatísticas</h3>
 
                 <div class="stat">
+                    <span class="stat-name">Média de CO₂</span>
+                    <span class="stat-value" id="media">--</span>
+                </div>
 
-                    <span class="stat-name">
-                        Média de CO₂
-                    </span>
+                <div class="stat">
+                    <span class="stat-name">Maior CO₂</span>
+                    <span class="stat-value" id="maximo">--</span>
+                </div>
 
-                    <span
-                        class="stat-value"
-                        id="media">
-                        --
-                    </span>
+                <div class="stat">
+                    <span class="stat-name">Menor CO₂</span>
+                    <span class="stat-value" id="minimo">--</span>
+                </div>
+
+                <div class="stat">
+                    <span class="stat-name">Faixa do sensor</span>
+                    <span class="stat-value">0–5000 ppm</span>
+                </div>
+
+                <!-- =================================================
+                     GRÁFICO DE LINHA
+                     ================================================= -->
+
+                <div class="grafico-container">
+
+                    <h3 class="grafico-titulo">
+                        Evolução do CO₂
+                    </h3>
+
+                    <!-- O Chart.js transforma este canvas em um gráfico -->
+                    <canvas id="graficoCo2"></canvas>
 
                 </div>
 
+                <!-- =================================================
+                     TENDÊNCIA
+                     ================================================= -->
 
-                <div class="stat">
+                <div class="tendencia">
 
-                    <span class="stat-name">
-                        Maior CO₂
+                    <span class="tendencia-label">
+                        Tendência:
                     </span>
 
-                    <span
-                        class="stat-value"
-                        id="maximo">
-                        --
+                    <span id="tendenciaIcone" class="tendencia-icone">
+                        ➡️
                     </span>
 
-                </div>
-
-
-                <div class="stat">
-
-                    <span class="stat-name">
-                        Menor CO₂
-                    </span>
-
-                    <span
-                        class="stat-value"
-                        id="minimo">
-                        --
-                    </span>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <span class="stat-name">
-                        Faixa do sensor
-                    </span>
-
-                    <span class="stat-value">
-
-                        0–5000 ppm
-
+                    <span id="tendenciaTexto">
+                        Aguardando dados...
                     </span>
 
                 </div>
 
             </div>
 
-
         </section>
 
     </main>
-
-
 
     <!-- =========================================================
          RODAPÉ
          ========================================================= -->
 
     <footer>
-
-        MonitorAr © 2026
-        |
-        Sistema de monitoramento de CO₂
-
+        MonitorAr © 2026 | Sistema de monitoramento de CO₂
     </footer>
 
-
-
     <!-- =========================================================
-         JAVASCRIPT DO DASHBOARD
+         JAVASCRIPT
+         
+         É AQUI QUE A PARTE DINÂMICA DO DASHBOARD ACONTECE.
+
+         Fluxo geral:
+
+         C# → Node.js → HTML
+
+         O HTML consulta o servidor Node.js através das rotas
+         HTTP, como:
+
+             /historico
+             /estatisticas
+
+         Os dados recebidos em JSON são utilizados para atualizar
+         os cards, tabela, gráfico, tendência e alertas.
          ========================================================= -->
 
     <script>
+
+        // ========================================================
+        // VARIÁVEL DO GRÁFICO
+        // ========================================================
+        /*
+         * Guarda a instância do gráfico criado pelo chart.js.
+         * Chart.js é uma biblioteca JavaScript para criar gráficos em páginas HTML.
+         * Começamos com null porque o gráfico ainda não existe.
+         *
+         * Depois que ele for criado, podemos apenas atualizar seus
+         * dados em vez de criar um gráfico novo a cada segundo.
+         */
+        let graficoCo2 = null;
+
+        // ========================================================
+        // ALTERNAR TEMA
+        // ========================================================
+
+        /*
+         * Esta função é chamada quando o usuário clica no botão
+         * de lua/sol.
+         *
+         * O classList.toggle() adiciona ou remove a classe
+         * "modo-escuro" do <body>.
+         *
+         * O CSS possui regras específicas para essa classe e,
+         * portanto, muda automaticamente a aparência da página.
+         */
+        function alternarTema() {
+
+            const corpo = document.body;
+            const botao = document.getElementById('botaoTema');
+
+            // Adiciona ou remove o modo escuro.
+            corpo.classList.toggle('modo-escuro');
+
+            /*
+             * Verifica se o modo escuro está ativo para trocar
+             * o ícone do botão e salvar a preferência.
+             */
+            if (corpo.classList.contains('modo-escuro')) {
+
+                botao.textContent = '☀️';
+
+                // Salva a preferência no navegador.
+                localStorage.setItem('tema', 'escuro');
+
+            } else {
+
+                botao.textContent = '🌙';
+
+                localStorage.setItem('tema', 'claro');
+            }
+
+            // Atualiza as cores do gráfico para acompanhar o tema.
+            atualizarCoresGrafico();
+        }
+
+
+        // ========================================================
+        // CARREGAR TEMA SALVO
+        // ========================================================
+        /*
+         * Quando a página é aberta, verificamos no localStorage
+         * se o usuário havia escolhido o modo escuro anteriormente.
+         *
+         * Assim, o tema não volta para o padrão toda vez que a
+         * página é atualizada.
+         */
+        function carregarTema() {
+
+            const tema = localStorage.getItem('tema');
+
+            if (tema === 'escuro') {
+
+                document.body.classList.add('modo-escuro');
+
+                document.getElementById('botaoTema').textContent = '☀️';
+            }
+        }
+
+
+        // ========================================================
+        // CORES DO GRÁFICO
+        // ========================================================
+
+        /*
+         * O Chart.js não utiliza automaticamente as cores do CSS.
+         *
+         * Por isso, quando o tema muda, precisamos alterar
+         * manualmente as cores do gráfico.
+         */
+        function atualizarCoresGrafico() {
+
+            // Se o gráfico ainda não foi criado, não há nada para atualizar.
+            if (!graficoCo2) {
+                return;
+            }
+
+            const escuro =
+                document.body.classList.contains('modo-escuro');
+
+            /*
+             * Define as cores de texto e das linhas de grade
+             * dependendo do tema atual.
+             */
+            const corTexto =
+                escuro ? '#cbd5e1' : '#64748b';
+
+            const corGrade =
+                escuro ? '#334155' : '#e5e7eb';
+
+            // Atualiza os textos dos eixos.
+            graficoCo2.options.scales.x.ticks.color = corTexto;
+            graficoCo2.options.scales.y.ticks.color = corTexto;
+            graficoCo2.options.scales.y.title.color = corTexto;
+
+            // Atualiza as grades do gráfico.
+            graficoCo2.options.scales.x.grid.color = corGrade;
+            graficoCo2.options.scales.y.grid.color = corGrade;
+
+            // Atualiza a cor da linha do gráfico.
+            graficoCo2.data.datasets[0].borderColor =
+                escuro ? '#60a5fa' : '#2563eb';
+
+            // Atualiza a cor dos pontos.
+            graficoCo2.data.datasets[0].pointBackgroundColor =
+                escuro ? '#60a5fa' : '#2563eb';
+
+            // Pede para o Chart.js redesenhar o gráfico.
+            graficoCo2.update();
+        }
+
+
+        // ========================================================
+        // ALERTA CRÍTICO
+        // ========================================================
+
+        /*
+         * Recebe a classificação produzida pelo sistema de IA
+         * e verifica se ela é "Critica".
+         *
+         * Quando é crítica:
+         *
+         * - muda o fundo da página;
+         * - muda o cabeçalho para vermelho;
+         * - faz o indicador piscar;
+         * - destaca o CO₂;
+         * - destaca a qualidade;
+         * - altera o texto do status.
+         *
+         * Isso cria visualmente um "alerta máximo".
+         */
+        function controlarAlerta(qualidade) {
+
+            const corpo = document.body;
+
+            const textoStatus =
+                document.getElementById('statusText');
+
+            if (qualidade === 'Critica') {
+
+                // Ativa o modo de alerta crítico.
+                corpo.classList.add('alerta-critico');
+
+                textoStatus.textContent =
+                    '⚠ ALERTA MÁXIMO';
+
+            } else {
+
+                // Remove o alerta quando a qualidade volta ao normal.
+                corpo.classList.remove('alerta-critico');
+
+                textoStatus.textContent =
+                    'Sistema conectado';
+            }
+        }
+
+
+        // ========================================================
+        // TENDÊNCIA
+        // ========================================================
+
+        /*
+         * Analisa as últimas três medições de CO₂.
+         *
+         * A lógica é simples:
+         *
+         * diferença > 50  → CO₂ está subindo
+         * diferença < -50 → CO₂ está descendo
+         * caso contrário   → está estável
+         */
+        function atualizarTendencia(dados) {
+
+            const texto =
+                document.getElementById('tendenciaTexto');
+
+            const icone =
+                document.getElementById('tendenciaIcone');
+
+            /*
+             * Com menos de três medições ainda não temos dados
+             * suficientes para calcular uma tendência.
+             */
+            if (dados.length < 3) {
+
+                icone.textContent = '➡️';
+                texto.textContent = 'Aguardando mais dados...';
+
+                return;
+            }
+
+            // Pega somente as três medições mais recentes.
+            const ultimas = dados.slice(-3);
+
+            // Primeiro valor do grupo analisado.
+            const primeiro =
+                Number(ultimas[0].co2);
+
+            // Último valor do grupo analisado.
+            const ultimo =
+                Number(ultimas[ultimas.length - 1].co2);
+
+            // Calcula quanto o CO₂ variou.
+            const diferenca = ultimo - primeiro;
+
+            if (diferenca > 50) {
+
+                icone.textContent = '📈';
+                texto.textContent = 'Subindo';
+
+            } else if (diferenca < -50) {
+
+                icone.textContent = '📉';
+                texto.textContent = 'Descendo';
+
+            } else {
+
+                icone.textContent = '➡️';
+                texto.textContent = 'Estável';
+            }
+        }
+
+
+        // ========================================================
+        // CRIAR / ATUALIZAR GRÁFICO
+        // ========================================================
+
+        /*
+         * Recebe todas as medições disponíveis e transforma as
+         * últimas 20 em pontos do gráfico.
+         */
+        function criarGrafico(dados) {
+
+            const canvas =
+                document.getElementById('graficoCo2');
+
+            // Mostra no máximo as 20 medições mais recentes.
+            const ultimas = dados.slice(-20);
+
+            /*
+             * Converte o horário de cada medição para um formato
+             * legível, por exemplo:
+             *
+             * 19:42:01
+             */
+            const labels =
+                ultimas.map(medicao => {
+
+                    return new Date(
+                        medicao.horario
+                    ).toLocaleTimeString(
+                        'pt-BR',
+                        {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        }
+                    );
+                });
+
+            /*
+             * Cria um array somente com os valores de CO₂.
+             *
+             * Exemplo:
+             *
+             * [450, 520, 610, 700]
+             */
+            const valores =
+                ultimas.map(
+                    medicao => medicao.co2
+                );
+
+            /*
+             * Se o gráfico já existe, não precisamos criá-lo
+             * novamente.
+             *
+             * Apenas substituímos os dados.
+             */
+            if (graficoCo2) {
+
+                graficoCo2.data.labels = labels;
+
+                graficoCo2.data.datasets[0].data = valores;
+
+                graficoCo2.update();
+
+                return;
+            }
+
+            // Verifica qual tema está ativo.
+            const escuro =
+                document.body.classList.contains('modo-escuro');
+
+            const corTexto =
+                escuro ? '#cbd5e1' : '#64748b';
+
+            const corGrade =
+                escuro ? '#334155' : '#e5e7eb';
+
+            const corLinha =
+                escuro ? '#60a5fa' : '#2563eb';
+
+            /*
+             * Cria o gráfico utilizando a biblioteca Chart.js.
+             */
+            graficoCo2 =
+                new Chart(
+                    canvas,
+                    {
+                        type: 'line',
+
+                        data: {
+                            labels: labels,
+
+                            datasets: [
+                                {
+                                    label: 'CO₂ (ppm)',
+
+                                    data: valores,
+
+                                    borderColor: corLinha,
+
+                                    pointBackgroundColor: corLinha,
+
+                                    borderWidth: 2,
+
+                                    /*
+                                     * Tension deixa a linha levemente
+                                     * curva em vez de completamente reta.
+                                     */
+                                    tension: 0.3,
+
+                                    pointRadius: 3,
+
+                                    fill: false
+                                }
+                            ]
+                        },
+
+                        options: {
+
+                            // O gráfico se adapta ao tamanho disponível.
+                            responsive: true,
+
+                            maintainAspectRatio: false,
+
+                            // Desativa animações para evitar efeitos
+                            // durante a atualização a cada segundo.
+                            animation: false,
+
+                            plugins: {
+
+                                // Não precisamos mostrar a legenda,
+                                // pois o título já explica o gráfico.
+                                legend: {
+                                    display: false
+                                }
+                            },
+
+                            scales: {
+
+                                // Configurações do eixo horizontal.
+                                x: {
+
+                                    ticks: {
+                                        color: corTexto,
+                                        maxTicksLimit: 6
+                                    },
+
+                                    grid: {
+                                        color: corGrade
+                                    }
+                                },
+
+                                // Configurações do eixo vertical.
+                                y: {
+
+                                    beginAtZero: true,
+
+                                    suggestedMax: 5000,
+
+                                    ticks: {
+                                        color: corTexto
+                                    },
+
+                                    grid: {
+                                        color: corGrade
+                                    },
+
+                                    title: {
+                                        display: true,
+                                        text: 'ppm',
+                                        color: corTexto
+                                    }
+                                }
+                            }
+                        }
+                    }
+                );
+        }
 
 
         // ========================================================
         // BUSCAR HISTÓRICO
         // ========================================================
 
-        // Solicita ao Node.js as últimas medições.
+        /*
+         * Esta é uma das funções mais importantes do dashboard.
+         *
+         * Ela faz uma requisição HTTP para:
+         *
+         * GET /historico
+         *
+         * O Node.js responde com os dados armazenados.
+         *
+         * Depois disso, o JavaScript utiliza esses dados para
+         * atualizar:
+         *
+         * - gráfico;
+         * - tendência;
+         * - dashboard;
+         * - tabela.
+         */
+        async function carregarHistorico() {
 
-        async function carregarHistorico()
-        {
+            try {
 
-            try
-            {
-
+                /*
+                 * fetch() envia uma requisição para o servidor.
+                 *
+                 * Como o endereço é "/historico", o navegador
+                 * acessa a rota do mesmo servidor que entregou
+                 * esta página.
+                 */
                 const resposta =
                     await fetch('/historico');
 
-
-                // Converte a resposta para JSON.
-
+                /*
+                 * Converte a resposta HTTP para um objeto JavaScript.
+                 *
+                 * O Node.js deve retornar JSON.
+                 */
                 const dados =
                     await resposta.json();
 
+                /*
+                 * Caso o servidor ainda não tenha nenhuma medição,
+                 * mostramos a mensagem de espera.
+                 */
+                if (dados.length === 0) {
 
-                // Se não houver dados,
-                // mostra mensagem.
-
-                if (dados.length === 0)
-                {
-
-                    document.getElementById(
-                        'historico'
-                    ).innerHTML = `
-
+                    document.getElementById('historico').innerHTML = `
                         <tr>
-
-                            <td
-                                colspan="5"
-                                style="text-align:center;">
-
+                            <td colspan="5" style="text-align: center;">
                                 Aguardando medições...
-
                             </td>
-
                         </tr>
-
                     `;
 
                     return;
-
                 }
 
+                /*
+                 * Atualiza o gráfico utilizando os dados recebidos.
+                 */
+                criarGrafico(dados);
 
-                // A última medição é a mais recente.
+                /*
+                 * Calcula se o CO₂ está subindo, descendo ou estável.
+                 */
+                atualizarTendencia(dados);
 
+                /*
+                 * A última posição do array representa a medição
+                 * mais recente.
+                 */
                 const atual =
                     dados[dados.length - 1];
 
-
-                // Atualiza os cards.
-
+                /*
+                 * Atualiza os cards principais.
+                 */
                 atualizarDashboard(atual);
 
-
-                // Limpa a tabela.
-
+                /*
+                 * Agora começamos a montar novamente a tabela.
+                 */
                 const tabela =
-                    document.getElementById(
-                        'historico'
-                    );
-
+                    document.getElementById('historico');
 
                 tabela.innerHTML = '';
 
-
-                // Percorre as medições.
-                //
-                // reverse() faz com que a mais recente
-                // apareça primeiro.
-
+                /*
+                 * slice() cria uma cópia do array.
+                 *
+                 * reverse() inverte essa cópia para que a medição
+                 * mais recente apareça primeiro na tabela.
+                 */
                 dados
                     .slice()
                     .reverse()
-                    .forEach(medicao =>
-                {
+                    .forEach(medicao => {
 
-                    const linha =
-                        document.createElement('tr');
+                        // Cria uma nova linha da tabela.
+                        const linha =
+                            document.createElement('tr');
 
+                        /*
+                         * Converte o horário recebido do servidor
+                         * para o formato de horário brasileiro.
+                         */
+                        const horario =
+                            new Date(
+                                medicao.horario
+                            ).toLocaleTimeString('pt-BR');
 
-                    // Formata o horário.
+                        /*
+                         * Monta as células da linha.
+                         *
+                         * Os valores vêm diretamente do objeto
+                         * "medicao" recebido do servidor.
+                         */
+                        linha.innerHTML = `
+                            <td>${horario}</td>
 
-                    const horario =
-                        new Date(
-                            medicao.horario
-                        ).toLocaleTimeString(
-                            'pt-BR'
-                        );
+                            <td>${medicao.adc}</td>
 
+                            <td>${medicao.co2} ppm</td>
 
-                    linha.innerHTML = `
+                            <td>
+                                <span class="quality ${classeQualidade(medicao.qualidade)}">
+                                    ${medicao.qualidade}
+                                </span>
+                            </td>
 
-                        <td>
-                            ${horario}
-                        </td>
+                            <td>
+                                ${medicao.filtro ? 'ATIVADO' : 'DESATIVADO'}
+                            </td>
+                        `;
 
-                        <td>
-                            ${medicao.adc}
-                        </td>
-
-                        <td>
-                            ${medicao.co2} ppm
-                        </td>
-
-                        <td>
-
-                            <span
-                                class="quality
-                                ${classeQualidade(
-                                    medicao.qualidade
-                                )}">
-
-                                ${medicao.qualidade}
-
-                            </span>
-
-                        </td>
-
-                        <td>
-
-                            ${
-                                medicao.filtro
-                                ? 'ATIVADO'
-                                : 'DESATIVADO'
-                            }
-
-                        </td>
-
-                    `;
-
-
-                    tabela.appendChild(linha);
-
-                });
-
+                        // Coloca a linha criada dentro da tabela.
+                        tabela.appendChild(linha);
+                    });
 
             }
-            catch (erro)
-            {
+            catch (erro) {
 
+                /*
+                 * Caso o servidor não responda ou aconteça algum
+                 * erro na conversão do JSON, o erro aparece no
+                 * console do navegador.
+                 */
                 console.error(
                     'Erro ao carregar histórico:',
                     erro
                 );
 
+                // Informa visualmente que o servidor está indisponível.
                 alterarStatus(false);
-
             }
-
         }
-
 
 
         // ========================================================
         // ATUALIZAR DASHBOARD
         // ========================================================
 
-        function atualizarDashboard(medicao)
-        {
+        /*
+         * Recebe UMA medição e atualiza os principais elementos
+         * visuais da tela.
+         *
+         * Exemplo de objeto esperado:
+         *
+         * {
+         *     adc: 2500,
+         *     co2: 3000,
+         *     qualidade: "Ruim",
+         *     filtro: true
+         * }
+         */
+        function atualizarDashboard(medicao) {
 
-            // Atualiza o valor do CO2.
+            // ----------------------------------------------------
+            // CO₂
+            // ----------------------------------------------------
 
-            document.getElementById(
-                'co2Atual'
-            ).textContent =
+            document.getElementById('co2Atual').textContent =
                 medicao.co2;
 
 
-            // Atualiza o ADC.
+            // ----------------------------------------------------
+            // ADC
+            // ----------------------------------------------------
 
-            document.getElementById(
-                'adcAtual'
-            ).textContent =
+            document.getElementById('adcAtual').textContent =
                 medicao.adc;
 
 
-            // Atualiza o filtro.
+            // ----------------------------------------------------
+            // FILTRO
+            // ----------------------------------------------------
 
-            document.getElementById(
-                'filtroAtual'
-            ).textContent =
+            /*
+             * O operador ternário funciona assim:
+             *
+             * condição ? valor_se_verdadeiro : valor_se_falso
+             */
+            document.getElementById('filtroAtual').textContent =
                 medicao.filtro
-                ? 'ATIVADO'
-                : 'DESATIVADO';
+                    ? 'ATIVADO'
+                    : 'DESATIVADO';
 
 
-            // Atualiza a qualidade.
+            // ----------------------------------------------------
+            // QUALIDADE
+            // ----------------------------------------------------
 
             const qualidade =
-                document.getElementById(
-                    'qualidade'
-                );
+                document.getElementById('qualidade');
 
-
+            // Coloca o texto recebido pelo servidor.
             qualidade.textContent =
                 medicao.qualidade;
 
+            // Remove as classes de qualidade anteriores.
+            qualidade.className = 'quality';
 
-            // Remove classes antigas.
-
-            qualidade.className =
-                'quality';
-
-
-            // Adiciona a classe correspondente.
-
+            /*
+             * Adiciona a classe correspondente.
+             *
+             * Exemplo:
+             *
+             * "Critica" → classe "critical"
+             */
             qualidade.classList.add(
                 classeQualidade(
                     medicao.qualidade
@@ -1202,212 +1537,254 @@
             );
 
 
-            // Atualiza a barra de CO2.
+            // ----------------------------------------------------
+            // ALERTA
+            // ----------------------------------------------------
 
+            /*
+             * Verifica se a classificação atual é crítica.
+             */
+            controlarAlerta(
+                medicao.qualidade
+            );
+
+
+            // ----------------------------------------------------
+            // BARRA DE CO₂
+            // ----------------------------------------------------
+
+            /*
+             * Calcula a porcentagem do valor de CO₂ em relação
+             * ao limite visual de 5000 ppm.
+             *
+             * Exemplo:
+             *
+             * 2500 / 5000 × 100 = 50%
+             */
             const porcentagem =
                 (medicao.co2 / 5000) * 100;
 
-
-            document.getElementById(
-                'co2Progress'
-            ).style.width =
+            /*
+             * Math.min impede que a barra passe de 100%.
+             */
+            document.getElementById('co2Progress').style.width =
                 Math.min(
                     porcentagem,
                     100
                 ) + '%';
 
 
-            // Indica que o sistema está funcionando.
+            // ----------------------------------------------------
+            // STATUS
+            // ----------------------------------------------------
 
+            // Se conseguimos receber a medição, o servidor está funcionando.
             alterarStatus(true);
-
         }
 
 
-
         // ========================================================
-        // IDENTIFICAR CLASSE DA QUALIDADE
+        // CLASSE DA QUALIDADE
         // ========================================================
 
-        function classeQualidade(qualidade)
-        {
+        /*
+         * Converte o texto recebido do servidor em uma classe CSS.
+         *
+         * Isso permite que cada classificação tenha uma aparência
+         * diferente.
+         *
+         * Exemplo:
+         *
+         * "Excelente" → "excellent"
+         * "Boa"       → "good"
+         * "Moderada"  → "moderate"
+         * "Ruim"      → "bad"
+         * "Critica"   → "critical"
+         */
+        function classeQualidade(qualidade) {
 
-            switch (qualidade)
-            {
+            switch (qualidade) {
 
                 case 'Excelente':
-
                     return 'excellent';
 
-
                 case 'Boa':
-
                     return 'good';
 
-
                 case 'Moderada':
-
                     return 'moderate';
 
-
                 case 'Ruim':
-
                     return 'bad';
 
-
                 case 'Critica':
-
                     return 'critical';
 
-
                 default:
-
                     return '';
-
             }
-
         }
 
 
-
         // ========================================================
-        // BUSCAR ESTATÍSTICAS
+        // ESTATÍSTICAS
         // ========================================================
 
-        async function carregarEstatisticas()
-        {
+        /*
+         * Consulta a rota:
+         *
+         * GET /estatisticas
+         *
+         * O servidor retorna os cálculos de:
+         *
+         * - média;
+         * - maior valor;
+         * - menor valor.
+         */
+        async function carregarEstatisticas() {
 
-            try
-            {
+            try {
 
+                // Solicita as estatísticas ao servidor.
                 const resposta =
-                    await fetch(
-                        '/estatisticas'
-                    );
+                    await fetch('/estatisticas');
 
-
+                // Converte a resposta para JSON.
                 const dados =
                     await resposta.json();
 
-
-                // Se não houver dados,
-                // não atualiza os valores.
-
-                if (
-                    dados.media === undefined
-                )
-                {
-
+                /*
+                 * Se a média não existe, provavelmente ainda não
+                 * existem dados suficientes.
+                 */
+                if (dados.media === undefined) {
                     return;
-
                 }
 
-
-                document.getElementById(
-                    'media'
-                ).textContent =
+                // Atualiza a média.
+                document.getElementById('media').textContent =
                     dados.media + ' ppm';
 
-
-                document.getElementById(
-                    'maximo'
-                ).textContent =
+                // Atualiza o maior valor.
+                document.getElementById('maximo').textContent =
                     dados.maximo + ' ppm';
 
-
-                document.getElementById(
-                    'minimo'
-                ).textContent =
+                // Atualiza o menor valor.
+                document.getElementById('minimo').textContent =
                     dados.minimo + ' ppm';
 
             }
-            catch (erro)
-            {
+            catch (erro) {
 
+                // Mostra qualquer erro no console.
                 console.error(
                     'Erro ao carregar estatísticas:',
                     erro
                 );
-
             }
-
         }
 
 
-
         // ========================================================
-        // STATUS DO SISTEMA
+        // STATUS DA CONEXÃO
         // ========================================================
 
-        function alterarStatus(conectado)
-        {
+        /*
+         * Altera o indicador de conexão do cabeçalho.
+         *
+         * conectado = true
+         * → ponto verde
+         *
+         * conectado = false
+         * → ponto vermelho
+         */
+        function alterarStatus(conectado) {
 
             const ponto =
-                document.getElementById(
-                    'statusDot'
-                );
-
+                document.getElementById('statusDot');
 
             const texto =
-                document.getElementById(
-                    'statusText'
-                );
+                document.getElementById('statusText');
 
+            if (conectado) {
 
-            if (conectado)
-            {
-
+                // Verde = servidor respondendo.
                 ponto.style.background =
                     '#22c55e';
 
+                /*
+                 * Não sobrescreve "ALERTA MÁXIMO" caso o sistema
+                 * esteja em situação crítica.
+                 */
+                if (
+                    !document.body.classList.contains(
+                        'alerta-critico'
+                    )
+                ) {
 
-                texto.textContent =
-                    'Sistema conectado';
+                    texto.textContent =
+                        'Sistema conectado';
+                }
 
-            }
-            else
-            {
+            } else {
 
+                // Vermelho = servidor indisponível.
                 ponto.style.background =
                     '#ef4444';
 
-
                 texto.textContent =
                     'Servidor indisponível';
-
             }
-
         }
 
+
+        // ========================================================
+        // INICIALIZAÇÃO
+        // ========================================================
+
+        /*
+         * Quando o HTML termina de carregar, essas funções são
+         * executadas uma vez.
+         */
+
+        // Recupera o tema salvo.
+        carregarTema();
+
+        // Busca as medições e atualiza o dashboard.
+        carregarHistorico();
+
+        // Busca média, máximo e mínimo.
+        carregarEstatisticas();
 
 
         // ========================================================
         // ATUALIZAÇÃO AUTOMÁTICA
         // ========================================================
 
-        // Carrega os dados assim que o Dashboard abrir.
-
-        carregarHistorico();
-
-        carregarEstatisticas();
-
-
-        // Atualiza os dados a cada 2 segundos.
-
+        /*
+         * setInterval() executa uma função repetidamente.
+         *
+         * 1000 milissegundos = 1 segundo.
+         *
+         * Portanto, a cada 1 segundo o navegador consulta
+         * novamente o histórico.
+         */
         setInterval(
             carregarHistorico,
             1000
         );
 
 
+        /*
+         * Da mesma forma, as estatísticas são atualizadas
+         * automaticamente a cada 1 segundo.
+         */
         setInterval(
             carregarEstatisticas,
             1000
         );
 
-
     </script>
-
 
 </body>
 
