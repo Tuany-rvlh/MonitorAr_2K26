@@ -1,46 +1,30 @@
 ﻿using System;
-// Permite usar recursos básicos do C#, como:
-// Console, Exception, int, bool, etc.
+// Permite usar recursos básicos do C#, como: Console, Exception, int, bool, etc.
 
 using System.IO.Ports;
 // Permite trabalhar com portas seriais COM.
-// É usado pelo projeto para:
-// - listar as portas disponíveis;
-// - abrir uma porta COM;
-// - receber os bytes enviados pelo Python/STM32;
-// - fechar a porta.
 
 using System.Net.Http;
 // Permite fazer comunicação HTTP.
-// É usado para enviar os dados recebidos da porta COM
-// para a API Node.js através de uma requisição POST.
 
 using System.Text;
 // Permite trabalhar com codificação de texto.
-// É usado para transformar o JSON em UTF-8 antes
-// de enviá-lo para a API.
+// É usado para transformar o JSON em UTF-8 antes de enviá-lo para a API.
 
 using System.Text.Json;
 // Permite transformar objetos C# em JSON.
-// Exemplo:
-// { adc = 2000, filtro = true }
-// vira:
-// {"adc":2000,"filtro":true}
 
 using System.Threading;
 // Permite controlar o tempo de execução do programa.
-// Neste projeto é usado principalmente com Thread.Sleep()
-// para esperar alguns segundos antes de tentar conectar
+// Neste projeto é usado principalmente com Thread.Sleep() para esperar alguns segundos antes de tentar conectar
 // novamente a uma porta COM.
 
 // ============================================================
 // CONFIGURACOES GERAIS
 // ============================================================
 
-// A porta COM NAO e mais fixa no codigo (requisito de deteccao
-// automatica).
-// O baudRate continua fixo pois precisa ser IGUAL ao configurado
-// no STM32/simulador.
+// A porta COM NÃO é mais fixa no código 
+// O baudRate continua fixo pois precisa ser IGUAL ao configurado no STM32/simulador.
 int baudRate = 115200;
 
 // Endereco da API Node.js que recebera os dados.
@@ -54,8 +38,7 @@ const int TAMANHO_PACOTE = 8;
 // O valor 2 NÃO significa testar apenas 2 portas.
 const int TENTATIVAS_LEITURA_TESTE = 2;
 
-// Se o C# abrir uma porta e nenhum pacote válido chegar
-// durante esse tempo, ele para de esperar e testa outra porta.
+// Se o C# abrir uma porta e nenhum pacote válido chegar durante esse tempo, ele para de esperar e testa outra porta.
 const int TIMEOUT_LEITURA_TESTE_MS = 1500;
 
 // Versão do protocolo proprietario definido para o projeto.
@@ -83,19 +66,16 @@ Console.WriteLine("==========================================");
 // ============================================================
 
 // O programa fica executando continuamente.
-// Caso a comunicacao seja perdida, ele tenta encontrar
-// novamente a porta automaticamente.
+// Caso a comunicacao seja perdida, ele tenta encontrar novamente a porta automaticamente.
 while (true)
 {
     // Cria uma variável para guardar a porta COM que será encontrada.
     // O "?" significa que ela pode começar sem nenhuma porta definida (null).
-    // Ela receberá uma porta válida depois que o programa fizer a detecção automática.
     SerialPort? porta = null;
 
     try // ele tenta executar o código abaixo, mas se houver algum erro, ele pula para o catch.
     {
-        // Procura automaticamente uma porta que esteja
-        // enviando pacotes validos do nosso protocolo.
+        // Procura automaticamente uma porta que esteja enviando pacotes válidos do nosso protocolo.
         porta = DetectarPortaSTM32(baudRate);
 
         Console.WriteLine($"Porta {porta.PortName} conectada e validada.");
@@ -110,9 +90,7 @@ while (true)
                 byte[] pacote = LerPacote(porta);
 
                 // Mostra o pacote recebido em hexadecimal.
-                Console.WriteLine(
-                    $"HEX recebido: {BitConverter.ToString(pacote).Replace("-", " ")}"
-                );
+                Console.WriteLine($"HEX recebido: {BitConverter.ToString(pacote).Replace("-", " ")}");
 
                 // Verifica se o pacote segue o protocolo.
                 if (!ValidarPacote(pacote))
@@ -121,8 +99,7 @@ while (true)
                     Console.WriteLine();
 
                     // Ignora o pacote e tenta ler o proximo.
-                    // O continue faz o programa voltar para o início do loop
-                    // e esperar o próximo pacote.  
+                    // O continue faz o programa voltar para o início do loop e esperar o próximo pacote.  
                     continue;
                 }
 
@@ -143,7 +120,6 @@ while (true)
                 string json = ConverterParaJson(adc, filtro);
 
                 Console.WriteLine($"JSON: {json}");
-                // JSON: {"adc":2500,"filtro":true}
 
                 // Envia o JSON para a API Node.js.
                 // await faz o programa esperar a resposta da API antes de continuar.
@@ -159,34 +135,20 @@ while (true)
             catch (TimeoutException)
             {
                 // Nenhum byte chegou dentro do tempo configurado.
-                Console.WriteLine(
-                    "ERRO: tempo de espera excedido aguardando dados."
-                );
-
+                Console.WriteLine("ERRO: tempo de espera excedido aguardando dados.");
                 Console.WriteLine();
             }
             catch (HttpRequestException erroHttp)
             {
-                // O servidor Node.js pode estar desligado
-                // ou o endereco da API pode estar incorreto.
-                Console.WriteLine(
-                    $"ERRO: falha ao conectar na API ({erroHttp.Message})."
-                );
-
-                Console.WriteLine(
-                    "Verifique se o servidor Node.js esta rodando."
-                );
-
+                // O servidor Node.js pode estar desligado ou o endereco da API pode estar incorreto.
+                Console.WriteLine($"ERRO: falha ao conectar na API ({erroHttp.Message}).");
+                Console.WriteLine("Verifique se o servidor Node.js esta rodando.");
                 Console.WriteLine();
             }
             catch (IOException erroIO)
             {
-                // A comunicacao serial foi perdida.
-                // Isso pode acontecer se o dispositivo for desconectado.
-                Console.WriteLine(
-                    $"ERRO: perda de comunicacao com a porta serial: {erroIO.Message}"
-                );
-
+                // A comunicacao serial foi perdida. Isso pode acontecer se o dispositivo for desconectado.
+                Console.WriteLine($"ERRO: perda de comunicacao com a porta serial: {erroIO.Message}");
                 Console.WriteLine("Tentando reconectar...\n");
 
                 // Sai do loop da porta e volta para a deteccao.
@@ -198,13 +160,8 @@ while (true)
     catch (Exception erroGeral)
     {
         // Trata erros inesperados durante a conexao.
-        Console.WriteLine(
-            $"ERRO INESPERADO: {erroGeral.Message}"
-        );
-
-        Console.WriteLine(
-            "Nova tentativa em 3 segundos...\n"
-        );
+        Console.WriteLine($"ERRO INESPERADO: {erroGeral.Message}");
+        Console.WriteLine("Nova tentativa em 3 segundos...\n");
     }
 
     finally
@@ -221,29 +178,16 @@ while (true)
     Thread.Sleep(3000);
 }
 
-
 // ============================================================
 // DETECCAO AUTOMATICA DE PORTA COM
 // ============================================================
-
-// Em vez de colocar "COM10", "COM6" ou outra porta fixa,
 // o programa procura todas as portas disponíveis.
+// Ele testa cada porta e procura por um pacote que corresponda ao nosso protocolo.
 
-// Ele testa cada porta e procura por um pacote que corresponda
-// ao nosso protocolo.
-//
-// Isso permite usar:
-// - STM32 real
-// - simulador Python
-// - outra fonte serial compatível
-//
-// sem precisar alterar o código.
-//
 // IMPORTANTE:
 // O com0com pode retornar entradas como CNCA0 e CNCB0.
 // Essas entradas nao sao portas COM utilizaveis pelo
 // System.IO.Ports, portanto elas sao ignoradas.
-
 
 // Procura automaticamente uma porta COM válida.
 // "static" permite usar a função diretamente.
@@ -258,23 +202,17 @@ static SerialPort DetectarPortaSTM32(int baudRate)
 
         if (portasDisponiveis.Length == 0)
         {
-
              // Informa que nenhuma porta foi encontrada
-            Console.WriteLine(
-                "Nenhuma porta COM encontrada. Aguardando dispositivo..."
-            );
+            Console.WriteLine("Nenhuma porta COM encontrada. Aguardando dispositivo...");
 
-            // Espera 2 segundos antes de procurar novamente,
-            // evitando que o programa fique procurando sem parar.
+            // Espera 2 segundos antes de procurar novamente, evitando que o programa fique procurando sem parar.
             Thread.Sleep(2000);
 
             // Volta para o início do while e faz uma nova busca pelas portas.
             continue;
         }
 
-        Console.WriteLine(
-            $"Portas encontradas: {string.Join(", ", portasDisponiveis)}"
-        );
+        Console.WriteLine($"Portas encontradas: {string.Join(", ", portasDisponiveis)}");
 
         // Testa cada entrada encontrada.
         foreach (string nomePorta in portasDisponiveis)
@@ -282,14 +220,6 @@ static SerialPort DetectarPortaSTM32(int baudRate)
             // ====================================================
             // CORRECAO PARA O COM0COM
             // ====================================================
-            //
-            // O com0com pode retornar:
-            //
-            // CNCA0
-            // CNCB0
-            //
-            // Essas entradas nao sao portas COM normais.
-            //
             // Como nosso programa precisa trabalhar com COM3,
             // COM4, COM5, COM6 etc., ignoramos qualquer entrada
             // que nao comece com "COM".
@@ -315,20 +245,17 @@ static SerialPort DetectarPortaSTM32(int baudRate)
                 // Cria uma porta serial candidata.
                 candidata = new SerialPort(nomePorta, baudRate)
                 {
-                    // Impede que o programa fique travado
-                    // esperando dados indefinidamente.
+                    // Impede que o programa fique travado esperando dados indefinidamente.
                     ReadTimeout = TIMEOUT_LEITURA_TESTE_MS
                 };
 
                 // Tenta abrir a porta.
                 candidata.Open();
 
-                // Verifica se a porta esta realmente enviando
-                // pacotes validos do nosso protocolo.
+                // Verifica se a porta esta realmente enviando pacotes validos do nosso protocolo.
                 if (ValidarComoOrigemDoProtocolo(candidata))
                 {
-                    // Encontramos a porta correta.
-                    // Ela permanece aberta.
+                    // Encontramos a porta correta. Ela permanece aberta.
                     return candidata;
                 }
 
@@ -347,8 +274,7 @@ static SerialPort DetectarPortaSTM32(int baudRate)
             }
             catch (TimeoutException)
             {
-                // A porta abriu, mas nao recebeu um pacote válido
-                // dentro do tempo configurado.
+                // A porta abriu, mas nao recebeu um pacote válido dentro do tempo configurado.
                 Console.WriteLine($"  {nomePorta}: nenhum dado válido recebido, pulando.");
 
                 candidata?.Close();
@@ -367,9 +293,7 @@ static SerialPort DetectarPortaSTM32(int baudRate)
 // ============================================================
 // VALIDACAO DA ORIGEM DO PROTOCOLO
 // ============================================================
-
-// Le algumas amostras da porta e verifica se elas correspondem
-// ao nosso protocolo proprietario.
+// Le algumas amostras da porta e verifica se elas correspondem ao nosso protocolo proprietario.
 static bool ValidarComoOrigemDoProtocolo(SerialPort porta)
 {
     for (int tentativa = 0; tentativa < TENTATIVAS_LEITURA_TESTE; tentativa++)
@@ -388,15 +312,10 @@ static bool ValidarComoOrigemDoProtocolo(SerialPort porta)
     return false;
 }
 
-
 // ============================================================
 // LER PACOTE
 // ============================================================
-
 // O nosso protocolo possui exatamente 8 bytes:
-//
-// [START][VERSAO][TIPO][FILTRO][ADC_H][ADC_L][CHECKSUM][FIM]
-//
 // Portanto, o C# precisa receber exatamente 8 bytes.
 static byte[] LerPacote(SerialPort porta)
 {
@@ -417,23 +336,16 @@ static byte[] LerPacote(SerialPort porta)
 
         totalLido += quantidade;
     }
-
     return pacote;
 }
-
 
 // ============================================================
 // VALIDAR PACOTE
 // ============================================================
-
 // Verifica se o pacote recebido segue exatamente o protocolo
-// proprietario definido para o projeto.
 static bool ValidarPacote(byte[] pacote)
 {
-    // --------------------------------------------------------
     // 1. Tamanho
-    // --------------------------------------------------------
-
     if (pacote.Length != TAMANHO_PACOTE)
     {
         Console.WriteLine(
@@ -443,10 +355,7 @@ static bool ValidarPacote(byte[] pacote)
         return false;
     }
 
-    // --------------------------------------------------------
     // 2. Byte de inicio
-    // --------------------------------------------------------
-
     if (pacote[0] != INICIO_PROTOCOLO)
     {
         Console.WriteLine(
@@ -455,11 +364,8 @@ static bool ValidarPacote(byte[] pacote)
 
         return false;
     }
-
-    // --------------------------------------------------------
+    
     // 3. Versao do protocolo
-    // --------------------------------------------------------
-
     if (pacote[1] != VERSAO_PROTOCOLO)
     {
         Console.WriteLine(
@@ -469,10 +375,7 @@ static bool ValidarPacote(byte[] pacote)
         return false;
     }
 
-    // --------------------------------------------------------
     // 4. Tipo de mensagem
-    // --------------------------------------------------------
-
     if (pacote[2] != TIPO_MENSAGEM)
     {
         Console.WriteLine(
@@ -482,15 +385,9 @@ static bool ValidarPacote(byte[] pacote)
         return false;
     }
 
-    // --------------------------------------------------------
     // 5. Estado do filtro
-    // --------------------------------------------------------
-
-    // O filtro pode assumir apenas:
-    //
     // 0x00 = desativado
     // 0x01 = ativado
-
     if (pacote[3] != 0x00 && pacote[3] != 0x01)
     {
         Console.WriteLine(
@@ -500,16 +397,9 @@ static bool ValidarPacote(byte[] pacote)
         return false;
     }
 
-    // --------------------------------------------------------
     // 6. Checksum
-    // --------------------------------------------------------
-
-    // O checksum e calculado somando:
-    //
-    // versao + tipo + filtro + ADC_H + ADC_L
-    //
+    // O checksum e calculado somando: versao + tipo + filtro + ADC_H + ADC_L
     // e mantendo apenas os 8 bits menos significativos.
-
     byte checksumCalculado =
         (byte)(
             pacote[1]
@@ -531,10 +421,7 @@ static bool ValidarPacote(byte[] pacote)
         return false;
     }
 
-    // --------------------------------------------------------
     // 7. Byte de fim
-    // --------------------------------------------------------
-
     if (pacote[7] != FIM_PROTOCOLO)
     {
         Console.WriteLine(
@@ -548,13 +435,9 @@ static bool ValidarPacote(byte[] pacote)
     return true;
 }
 
-
 // ============================================================
 // EXTRAIR ADC
 // ============================================================
-
-// O ADC possui 12 bits e esta dividido em dois bytes:
-//
 // ADC_H = byte alto
 // ADC_L = byte baixo
 //
@@ -570,27 +453,16 @@ static int ExtrairADC(byte[] pacote)
 // ============================================================
 // EXTRAIR FILTRO
 // ============================================================
-
-// Retorna:
-// true  = filtro ativado
-// false = filtro desativado
+// Retorna: true  = filtro ativado ou false = filtro desativado
 static bool ExtrairFiltro(byte[] pacote)
 {
     return pacote[3] == 0x01;
 }
 
-
 // ============================================================
 // CONVERTER PARA JSON
 // ============================================================
-
 // Converte o ADC e o estado do filtro para JSON.
-// Exemplo:
-// adc = 2048
-// filtro = false
-//
-// Resultado:
-// {"adc":2048,"filtro":false}
 static string ConverterParaJson(int adc, bool filtro)
 {
     // Cria os campos do JSON e coloca os valores recebidos neles.
@@ -601,11 +473,9 @@ static string ConverterParaJson(int adc, bool filtro)
     });
 }
 
-
 // ============================================================
 // ENVIAR PARA API
 // ============================================================
-
 // Envia o JSON para o servidor Node.js através de uma
 // requisição HTTP POST.
 static async Task<string> EnviarAPI(
