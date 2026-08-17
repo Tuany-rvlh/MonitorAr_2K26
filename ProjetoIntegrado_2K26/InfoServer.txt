@@ -2,21 +2,21 @@
               CONTRATO DA API - MONITORAR
 ============================================================
 
+
 1. OBJETIVO
 ------------------------------------------------------------
 
-A API é responsável por receber as medições enviadas pelo
-Gateway C#, encaminhar o valor ADC para o classificador
-Python, armazenar o resultado no histórico e disponibilizar
-as informações para o Dashboard.
+A API recebe as medições do C#, envia o ADC para o
+classificador Python, armazena o resultado e fornece
+os dados para o Dashboard.
 
-Fluxo do sistema:
+Fluxo:
 
 STM32 / Simulador
         |
-        | Protocolo proprietário via COM
+        | COM + protocolo proprietário
         v
-      C# 
+       C#
         |
         | HTTP + JSON
         v
@@ -26,7 +26,7 @@ STM32 / Simulador
         v
      Python
         |
-        | Classificação
+        | CO2 + qualidade
         v
      Node.js
         |
@@ -39,26 +39,28 @@ STM32 / Simulador
 2. CONFIGURAÇÃO
 ============================================================
 
-Servidor:
+Tecnologias:
 
-    Node.js + Express
+    Node.js
+    Express
 
 Porta:
 
     3000
 
-Endereço base:
+Endereço:
 
     http://localhost:3000
 
 
 ============================================================
-3. ENDPOINT POST /classificar
+3. POST /classificar
 ============================================================
 
 FINALIDADE:
 
-Receber uma medição enviada pelo C# para classificação.
+Receber uma medição do C# e solicitar a classificação
+ao Python.
 
 
 MÉTODO:
@@ -71,27 +73,16 @@ ENDPOINT:
     /classificar
 
 
-ENDEREÇO COMPLETO:
-
-    http://localhost:3000/classificar
-
-
 CONTENT-TYPE:
 
     application/json
 
 
 ------------------------------------------------------------
-3.1 DADOS DE ENTRADA
+DADOS ENVIADOS PELO C#
 ------------------------------------------------------------
 
-O C# deve enviar um JSON contendo:
-
-    adc
-    filtro
-
-
-Formato:
+Exemplo:
 
 {
     "adc": 2048,
@@ -109,11 +100,9 @@ Descrição:
 
     Valor bruto recebido pelo ADC.
 
-Faixa válida:
+Faixa:
 
     0 até 4095
-
-O ADC possui resolução de 12 bits.
 
 
 CAMPO: filtro
@@ -122,41 +111,38 @@ Tipo:
 
     boolean
 
-Valores permitidos:
+Descrição:
 
-    true  = filtro ativado
-    false = filtro desativado
+    Indica se o filtro está ativado.
+
+Valores:
+
+    true  = ativado
+    false = desativado
 
 
 ============================================================
-4. VALIDAÇÕES DO POST /classificar
+4. VALIDAÇÃO
 ============================================================
 
-A API verifica se:
+O Node.js verifica:
 
-1. O campo "adc" foi enviado.
-
-2. O campo "filtro" foi enviado.
-
-3. O ADC é um número.
-
-4. O ADC está entre 0 e 4095.
-
-5. O filtro é do tipo boolean.
+    - se ADC foi enviado;
+    - se filtro foi enviado;
+    - se ADC é um número;
+    - se ADC está entre 0 e 4095;
+    - se filtro é true ou false.
 
 
 ------------------------------------------------------------
-4.1 ADC OU FILTRO AUSENTE
+ADC OU FILTRO AUSENTE
 ------------------------------------------------------------
 
-Se algum dos campos não for enviado:
+HTTP:
+
+    400 Bad Request
 
 Resposta:
-
-    HTTP 400 - Bad Request
-
-
-Exemplo:
 
 {
     "erro": "ADC ou filtro nao enviado"
@@ -164,18 +150,14 @@ Exemplo:
 
 
 ------------------------------------------------------------
-4.2 ADC INVÁLIDO
+ADC INVÁLIDO
 ------------------------------------------------------------
 
-Se o ADC não for um número ou estiver fora da faixa
-permitida:
+HTTP:
+
+    400 Bad Request
 
 Resposta:
-
-    HTTP 400 - Bad Request
-
-
-Exemplo:
 
 {
     "erro": "ADC invalido. Deve estar entre 0 e 4095"
@@ -183,17 +165,14 @@ Exemplo:
 
 
 ------------------------------------------------------------
-4.3 FILTRO INVÁLIDO
+FILTRO INVÁLIDO
 ------------------------------------------------------------
 
-Se o filtro não for true ou false:
+HTTP:
+
+    400 Bad Request
 
 Resposta:
-
-    HTTP 400 - Bad Request
-
-
-Exemplo:
 
 {
     "erro": "Filtro invalido. Deve ser true ou false"
@@ -204,43 +183,84 @@ Exemplo:
 5. COMUNICAÇÃO COM O PYTHON
 ============================================================
 
-Após validar os dados, o Node.js executa o arquivo:
-
-    ClassificadorArvore.py
-
-
-O ADC é enviado para o Python como argumento.
-
-
-Exemplo:
+Depois de validar o ADC, o Node.js executa:
 
     py ClassificadorArvore.py 2048
 
 
-O Python deve retornar um JSON.
+O ADC é enviado para o Python como argumento.
+
+O Python converte o ADC para CO₂ em ppm e realiza
+a classificação da qualidade do ar.
 
 
-Exemplo:
+Conversão:
+
+    CO2 = (ADC * 5000) / 4095
+
+
+Exemplo de resposta do Python:
 
 {
     "adc": 2048,
-    "aqi": 250,
+    "co2": 2500,
     "qualidade": "Moderada"
 }
 
 
 ============================================================
-6. ERRO NA EXECUÇÃO DO PYTHON
+6. RESPOSTA DO POST /classificar
 ============================================================
 
-Se o Node.js não conseguir executar o Python:
+Se o processamento ocorrer corretamente:
+
+HTTP:
+
+    200 OK
+
 
 Resposta:
 
-    HTTP 500 - Internal Server Error
+{
+    "adc": 2048,
+    "co2": 2500,
+    "qualidade": "Moderada"
+}
 
 
-Formato:
+Campos:
+
+    adc
+        Valor original do ADC.
+
+    co2
+        Concentração de CO₂ em ppm.
+
+    qualidade
+        Classificação produzida pela Árvore de Decisão.
+
+
+Possíveis classificações:
+
+    Excelente
+    Boa
+    Moderada
+    Ruim
+    Critica
+
+
+============================================================
+7. ERROS DO PYTHON
+============================================================
+
+Se ocorrer um erro ao executar o Python:
+
+HTTP:
+
+    500 Internal Server Error
+
+
+Resposta:
 
 {
     "erro": "Erro ao executar o Python",
@@ -248,20 +268,14 @@ Formato:
 }
 
 
-============================================================
-7. RESPOSTA INVÁLIDA DO PYTHON
-============================================================
+Se o Python não retornar um JSON válido:
 
-O Node.js espera receber um JSON válido do Python.
+HTTP:
 
-Caso o Python não retorne um JSON válido:
+    500 Internal Server Error
+
 
 Resposta:
-
-    HTTP 500 - Internal Server Error
-
-
-Formato:
 
 {
     "erro": "Resposta invalida do Python"
@@ -269,55 +283,42 @@ Formato:
 
 
 ============================================================
-8. RESPOSTA DO POST /classificar
+8. HISTÓRICO
 ============================================================
 
-Se todo o processamento ocorrer corretamente, o Node.js
-retorna para o C# o resultado produzido pelo Python.
+O Node.js mantém as últimas 20 medições em memória.
+
+Cada medição possui:
+
+    adc
+    co2
+    qualidade
+    filtro
+    horario
 
 
 Exemplo:
 
 {
     "adc": 2048,
-    "aqi": 250,
-    "qualidade": "Moderada"
+    "co2": 2500,
+    "qualidade": "Moderada",
+    "filtro": false,
+    "horario": "2026-08-16T18:00:00.000Z"
 }
 
 
-STATUS:
-
-    HTTP 200 - OK
-
-
-============================================================
-9. HISTÓRICO DAS MEDIÇÕES
-============================================================
-
-O Node.js mantém temporariamente as medições recebidas.
-
-Cada registro possui:
-
-    adc
-    aqi
-    qualidade
-    filtro
-    horario
-
-
-O histórico possui no máximo 20 medições.
-
-Quando uma nova medição é adicionada e o limite de 20 é
-ultrapassado, a medição mais antiga é removida.
+Quando o histórico ultrapassa 20 medições,
+a medição mais antiga é removida.
 
 
 ============================================================
-10. ENDPOINT GET /historico
+9. GET /historico
 ============================================================
 
 FINALIDADE:
 
-Enviar o histórico das medições para o Dashboard.
+Enviar o histórico para o Dashboard.
 
 
 MÉTODO:
@@ -330,22 +331,12 @@ ENDPOINT:
     /historico
 
 
-ENDEREÇO:
-
-    http://localhost:3000/historico
-
-
-RESPOSTA:
-
-    HTTP 200 - OK
-
-
-Exemplo:
+Exemplo de resposta:
 
 [
     {
         "adc": 1200,
-        "aqi": 80,
+        "co2": 1465,
         "qualidade": "Boa",
         "filtro": true,
         "horario": "2026-08-16T18:00:00.000Z"
@@ -353,7 +344,7 @@ Exemplo:
 
     {
         "adc": 2048,
-        "aqi": 250,
+        "co2": 2500,
         "qualidade": "Moderada",
         "filtro": false,
         "horario": "2026-08-16T18:00:02.000Z"
@@ -362,12 +353,12 @@ Exemplo:
 
 
 ============================================================
-11. ENDPOINT GET /estatisticas
+10. GET /estatisticas
 ============================================================
 
 FINALIDADE:
 
-Fornecer estatísticas calculadas a partir do histórico.
+Calcular estatísticas das medições de CO₂ armazenadas.
 
 
 MÉTODO:
@@ -380,60 +371,40 @@ ENDPOINT:
     /estatisticas
 
 
-ENDEREÇO:
-
-    http://localhost:3000/estatisticas
-
-
-------------------------------------------------------------
-11.1 RESPOSTA COM DADOS
-------------------------------------------------------------
-
 Exemplo:
 
 {
-    "media": "165.50",
-    "maximo": 250,
-    "minimo": 80
+    "media": "1982.50",
+    "maximo": 2500,
+    "minimo": 1465
 }
 
 
-Os campos representam:
+Campos:
 
-    media  = média dos valores de AQI
-    maximo = maior AQI registrado
-    minimo = menor AQI registrado
+    media
+        Média do CO₂ em ppm.
 
+    maximo
+        Maior valor de CO₂ em ppm.
 
-------------------------------------------------------------
-11.2 HISTÓRICO VAZIO
-------------------------------------------------------------
-
-Se não existir nenhuma medição:
-
-Resposta:
-
-    HTTP 200 - OK
+    minimo
+        Menor valor de CO₂ em ppm.
 
 
-Formato:
+Se não houver medições:
 
 {
 }
 
 
 ============================================================
-12. ENDPOINT GET /
+11. GET /
 ============================================================
 
 FINALIDADE:
 
-Abrir o Dashboard do sistema.
-
-
-MÉTODO:
-
-    GET
+Abrir o Dashboard.
 
 
 ENDPOINT:
@@ -441,58 +412,31 @@ ENDPOINT:
     /
 
 
-ENDEREÇO:
-
-    http://localhost:3000/
-
-
-ARQUIVO RETORNADO:
+Arquivo:
 
     public/Dashboard.html
 
 
-============================================================
-13. RESUMO DOS ENDPOINTS
-============================================================
+Endereço:
 
-POST    /classificar
-
-    Recebe uma medição do C# e solicita
-    a classificação ao Python.
-
-
-GET     /historico
-
-    Retorna as últimas 20 medições.
-
-
-GET     /estatisticas
-
-    Retorna média, máximo e mínimo do AQI.
-
-
-GET     /
-
-    Abre o Dashboard do MonitorAr.
+    http://localhost:3000/
 
 
 ============================================================
-14. FLUXO DE UMA MEDIÇÃO
+12. FLUXO DE UMA MEDIÇÃO
 ============================================================
 
-1. O sensor/Simulador gera um valor ADC.
+1. O sensor ou simulador gera um ADC.
 
-2. O valor é enviado pela porta COM.
+2. O ADC é enviado pela porta COM.
 
-3. O C# recebe o pacote proprietário.
+3. O C# recebe o protocolo proprietário.
 
 4. O C# extrai:
        - ADC
-       - estado do filtro
+       - filtro
 
-5. O C# transforma os dados em JSON.
-
-6. O C# envia:
+5. O C# envia para o Node.js:
 
        POST /classificar
 
@@ -501,38 +445,71 @@ GET     /
            "filtro": false
        }
 
-7. O Node.js valida os dados.
+6. O Node.js valida os dados.
 
-8. O Node.js executa:
+7. O Node.js executa o Python:
 
        py ClassificadorArvore.py 2048
 
-9. O Python classifica o valor.
+8. O Python converte:
+
+       ADC → CO₂ em ppm
+
+9. O Python classifica a qualidade do ar.
 
 10. O Python retorna:
 
        {
            "adc": 2048,
-           "aqi": 250,
+           "co2": 2500,
            "qualidade": "Moderada"
        }
 
-11. O Node.js adiciona o estado do filtro
-    e o horário ao histórico.
+11. O Node.js adiciona:
 
-12. O Node.js envia o resultado de volta para o C#.
+       - filtro
+       - horário
 
-13. O Dashboard consulta:
+12. O Node.js salva a medição no histórico.
+
+13. O Node.js envia o resultado para o C#.
+
+14. O Dashboard consulta:
 
        GET /historico
 
        GET /estatisticas
 
-14. O Dashboard apresenta os dados ao usuário.
+15. O Dashboard apresenta os dados.
 
 
 ============================================================
-15. CÓDIGOS HTTP UTILIZADOS
+13. RESUMO DOS ENDPOINTS
+============================================================
+
+POST /classificar
+
+    Recebe ADC e filtro do C# e solicita
+    a classificação ao Python.
+
+
+GET /historico
+
+    Retorna as últimas 20 medições.
+
+
+GET /estatisticas
+
+    Retorna média, maior e menor valor de CO₂.
+
+
+GET /
+
+    Abre o Dashboard.
+
+
+============================================================
+14. CÓDIGOS HTTP
 ============================================================
 
 200 OK
@@ -542,50 +519,54 @@ GET     /
 
 400 Bad Request
 
-    Dados enviados pelo cliente são inválidos
-    ou estão incompletos.
+    Dados enviados são inválidos ou estão incompletos.
 
 
 500 Internal Server Error
 
-    Ocorreu um erro interno no processamento,
-    como falha na execução do Python ou
-    resposta inválida do classificador.
+    Erro interno no processamento ou na execução
+    do Python.
 
 
 ============================================================
-16. TECNOLOGIAS ENVOLVIDAS
+15. TECNOLOGIAS
 ============================================================
 
 C#:
 
     Recebe os dados da porta COM e envia
-    requisições HTTP para a API.
+    requisições HTTP para o Node.js.
 
 
 Node.js + Express:
 
-    Recebe as requisições HTTP, valida os dados,
-    executa o Python, mantém o histórico e
-    disponibiliza os dados para o Dashboard.
+    Recebe e valida os dados, executa o Python,
+    mantém o histórico e fornece os dados
+    para o Dashboard.
 
 
 Python:
 
-    Realiza a classificação da qualidade do ar.
+    Converte o ADC para CO₂ em ppm e classifica
+    a qualidade do ar usando uma Árvore de Decisão.
 
 
 Dashboard:
 
-    Apresenta as medições, classificação,
-    histórico e estatísticas.
+    Exibe CO₂, ADC, qualidade, filtro, histórico,
+    estatísticas, gráfico e tendência.
 
 
-Formato de comunicação entre C# e Node.js:
+Comunicação C# → Node.js:
 
-    JSON sobre HTTP.
+    HTTP + JSON
 
 
-Formato de comunicação entre Node.js e Python:
+Comunicação Node.js → Python:
 
-    Argumento de linha de comando + JSON na saída.
+    Argumento de linha de comando + JSON
+
+
+============================================================
+                    FIM DO CONTRATO
+============================================================
