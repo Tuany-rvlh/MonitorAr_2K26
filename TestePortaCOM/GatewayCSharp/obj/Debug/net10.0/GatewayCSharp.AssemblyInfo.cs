@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GatewayCSharp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b4a4162c6fadd9d9ed5e190c78ab1a0328a2f638")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ebdf465fa96f23e5ecc09f9e8bc0598a3d487890")]
 [assembly: System.Reflection.AssemblyProductAttribute("GatewayCSharp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GatewayCSharp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
