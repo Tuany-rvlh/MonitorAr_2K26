@@ -82,9 +82,10 @@ static uint8_t indice_buffer = 0;
 
 static uint8_t buffer_cheio = 0;
 
-static uint8_t estadoBotaoAnterior = GPIO_PIN_SET;
-
 uint32_t ultimoEnvio = 0;
+
+uint8_t filtro_ativo = 0;
+uint8_t botaoAnterior = 1;
 
 /* USER CODE END PV */
 
@@ -141,8 +142,8 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USB_DEVICE_Init();
   MX_ADC1_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   /* Estado atual do filtro */
   uint8_t filtro_ativo = 0;
@@ -159,9 +160,17 @@ int main(void)
 	      if (LerBotao())
 	      {
 	          filtro_ativo = !filtro_ativo;
+
+	          // Quando o filtro for ativado,
+	             // começa uma nova janela de média.
+	             if (filtro_ativo)
+	             {
+	                 indice_buffer = 0;
+	                 buffer_cheio = 0;
+	             }
 	      }
 
-	      /* A cada 1 segundo, faz uma nova leitura e envia */
+	      /* A cada 1 segundo, faz uma nova leitura e envia para a porta COM */
 	      if (HAL_GetTick() - ultimoEnvio >= 1000)
 	      {
 	          ultimoEnvio = HAL_GetTick();
@@ -302,19 +311,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LedTeste_GPIO_Port, LedTeste_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : LedTeste_Pin */
-  GPIO_InitStruct.Pin = LedTeste_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LedTeste_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : botaoFiltro_Pin */
   GPIO_InitStruct.Pin = botaoFiltro_Pin;
@@ -393,20 +391,22 @@ uint16_t CalcularMediaMovel(void)
 
 uint8_t LerBotao(void)
 {
-	 uint8_t estadoBotaoAtual = CLICK_BOTAO;
+	uint8_t estadoAtual = HAL_GPIO_ReadPin(botaoFiltro_GPIO_Port, botaoFiltro_Pin);
 
-	    if (estadoBotaoAnterior == 1 && estadoBotaoAtual == 0)
+	    uint8_t clique = 0;
+
+	    // Detecta apenas a transição:
+	    // solto -> pressionado
+	    if (botaoAnterior == 1 &&
+	        estadoAtual == 0)
 	    {
-	        estadoBotaoAnterior = 0;
-	        return 1;
+	    	HAL_Delay(200);
+	        clique = 1;
 	    }
 
-	    if (estadoBotaoAtual == 1)
-	    {
-	        estadoBotaoAnterior = 1;
-	    }
+	    botaoAnterior = estadoAtual;
 
-	    return 0;
+	    return clique;
 }
 
 /* USER CODE END 4 */

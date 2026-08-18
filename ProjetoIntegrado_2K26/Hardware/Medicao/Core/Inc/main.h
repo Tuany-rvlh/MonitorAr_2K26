@@ -58,8 +58,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LedTeste_Pin GPIO_PIN_13
-#define LedTeste_GPIO_Port GPIOC
 #define botaoFiltro_Pin GPIO_PIN_10
 #define botaoFiltro_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */

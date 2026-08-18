@@ -123,13 +123,8 @@ while (true)
 
                 // Envia o JSON para a API Node.js.
                 // await faz o programa esperar a resposta da API antes de continuar.
-                string resposta = await EnviarAPI(
-                    client,
-                    enderecoAPI,
-                    json
-                );
+                _  = EnviarAPI(client, enderecoAPI, json);
 
-                Console.WriteLine($"Resposta: {resposta}");
                 Console.WriteLine();
             }
             catch (TimeoutException)
@@ -319,11 +314,24 @@ static bool ValidarComoOrigemDoProtocolo(SerialPort porta)
 // Portanto, o C# precisa receber exatamente 8 bytes.
 static byte[] LerPacote(SerialPort porta)
 {
+    // Procura o byte inicial do protocolo: AA
+    while (true)
+    {
+        int primeiroByte = porta.ReadByte();
+
+        if (primeiroByte == INICIO_PROTOCOLO)
+        {
+            break;
+        }
+    }
+
+    // Já encontramos o AA.
     // Cria um buffer para armazenar os 8 bytes.
     byte[] pacote = new byte[TAMANHO_PACOTE];
 
+    pacote[0] = INICIO_PROTOCOLO;
     // Quantidade de bytes que ja foram recebidos.
-    int totalLido = 0;
+    int totalLido = 1;
 
     // Continua lendo ate completar os 8 bytes.
     while (totalLido < TAMANHO_PACOTE)
