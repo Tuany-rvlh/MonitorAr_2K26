@@ -38,3 +38,10 @@ obj/
 # Arquivos do sistema operacional
 .DS_Store
 Thumbs.db
+
+# STM32CubeIDE
+Debug/
+Release/
+
+# Arquivos de configuração local do Eclipse/STM32CubeIDE
+.metadata/
