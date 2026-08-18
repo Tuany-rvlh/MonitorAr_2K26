@@ -33,6 +33,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Cada medição armazenada possui: ADC, AQI, qualidade do ar, estado do filtro, horário da medição
 let historico = [];
 
+// Soma de todas as medições recebidas desde o início do sistema.
+let somaEstatisticas = 0;
+
+// Quantidade total de medições recebidas.
+let quantidadeEstatisticas = 0;
+
+// Maior valor já registrado.
+let maiorEstatistica = null;
+
+// Menor valor já registrado.
+let menorEstatistica = null;
 // ============================================================
 // RECEBER MEDIÇÃO DO C#
 // ============================================================
@@ -111,7 +122,31 @@ app.post('/classificar', (req, res) => {
                 return res.status(500).json({erro: "Resposta invalida do Python"});
 
             }
+            
+            // ========================================================
+            // ATUALIZAR ESTATÍSTICAS GERAIS
+            // ========================================================
 
+            const co2Atual = respostaPython.co2;
+
+            // Adiciona o valor à soma total.
+            somaEstatisticas += co2Atual;
+
+            // Aumenta a quantidade de medições.
+            quantidadeEstatisticas++;
+
+            // Verifica se é o maior valor já registrado.
+            if (maiorEstatistica === null || co2Atual > maiorEstatistica)
+            {
+                maiorEstatistica = co2Atual;
+            }
+
+            // Verifica se é o menor valor já registrado.
+            if (menorEstatistica === null || co2Atual < menorEstatistica)
+            {
+                menorEstatistica = co2Atual;
+            }
+            
             // =================================================
             // SALVAR MEDIÇÃO NO HISTÓRICO
             // =================================================
@@ -163,27 +198,22 @@ app.get('/historico', (req, res) => {res.json(historico);});
 // GET http://localhost:3000/estatisticas para receber: media, maior CO2 e menor CO2
 
 app.get('/estatisticas', (req, res) => {
-    // Se ainda nao existem medicoes, retorna um JSON vazio.
-    if (historico.length === 0) 
+
+    // Ainda não existem medições.
+    if (quantidadeEstatisticas === 0)
     {
         return res.json({});
     }
 
-    // Cria um vetor contendo somente os valores de CO2.
-    const valores = historico.map(item => item.co2);
+    // Média de TODAS as medições desde o início.
+    const media =
+        somaEstatisticas / quantidadeEstatisticas;
 
-    // Soma todos os valores de CO2 e divide pela quantidade de medições.
-    const media = valores.reduce((a, b) => a + b) / valores.length;
-
-    // Encontra o maior CO2 registrado.
-    const maximo = Math.max(...valores);
-
-    // Encontra o menor CO2 registrado.
-    const minimo = Math.min(...valores);
-
-    // Retorna as estatisticas em JSON.
-    res.json({media: media.toFixed(2), maximo: maximo, minimo: minimo});
-
+    res.json({
+        media: media.toFixed(2),
+        maximo: maiorEstatistica,
+        minimo: menorEstatistica
+    });
 });
 
 // ============================================================
