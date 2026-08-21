@@ -316,6 +316,7 @@ Com o servidor em execução, abra a interface Web pelo endereço disponibilizad
 A página apresentará as medições e os resultados da classificação.
 
 🔄 Fluxo de uma medição
+````text
 1. Trimpot altera o sinal analógico
           ↓
 2. STM32 realiza a leitura
@@ -341,6 +342,7 @@ A página apresentará as medições e os resultados da classificação.
 12. Resultado retorna ao sistema
           ↓
 13. Interface Web é atualizada
+````
 🔘 Filtro de média móvel
 
 O sistema utiliza um filtro de média móvel com 10 amostras para reduzir oscilações nas medições.
@@ -407,6 +409,7 @@ Ela contém recursos para simulação e testes da comunicação pela Porta COM, 
 Vídeo:
 🔗[Vídeo de Funcionamneto
 ](https://youtu.be/iM--X4UL1Fw?feature=shared)
+
 O vídeo apresenta:
 
 funcionamento do STM32;
