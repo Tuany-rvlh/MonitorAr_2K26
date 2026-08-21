@@ -82,6 +82,7 @@ Dessa forma, uma leitura realizada no microcontrolador percorre todas as etapas 
 │ • Estatísticas       │
 │ • Estado do filtro   │
 └──────────────────────┘
+````
 
 ⚙️ Funcionamento
 1. Aquisição de dados — STM32
