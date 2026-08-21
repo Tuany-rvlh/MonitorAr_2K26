@@ -18,56 +18,71 @@ Sensor → STM32 → USB/COM → C# → HTTP/JSON → API Node.js → IA Python 
 
 Dessa forma, uma leitura realizada no microcontrolador percorre todas as etapas do sistema até ser apresentada ao usuário.
 
-🧩 Arquitetura do sistema
-┌─────────────────────┐
-│       STM32         │
-│                     │
-│  Leitura do ADC     │
-│  Sensor / Trimpot   │
-│  Filtro de média    │
-└──────────┬──────────┘
+## 🧩 Arquitetura do sistema
+
+```text
+                    ARQUITETURA DO SISTEMA — MonitorAr 2K26
+
+┌──────────────────────┐
+│  1. STM32F103C8      │
+│  Aquisição de dados  │
+│                      │
+│ • Leitura do ADC     │
+│ • Trimpot            │
+│ • Filtro de média    │
+│ • Envio periódico    │
+└──────────┬───────────┘
            │
            │ USB CDC
            │ Porta COM
            ▼
-┌─────────────────────┐
-│   Gateway C#        │
-│                     │
-│ Leitura da COM      │
-│ Tratamento dos dados│
-│ Conversão para JSON │
-└──────────┬──────────┘
+┌──────────────────────┐
+│  2. Gateway C#       │
+│  Comunicação         │
+│                      │
+│ • Lê a Porta COM     │
+│ • Processa os dados  │
+│ • Converte para JSON │
+│ • Envia via HTTP     │
+└──────────┬───────────┘
            │
            │ HTTP / JSON
            ▼
-┌─────────────────────┐
-│   Servidor Node.js  │
-│      Express        │
-│                     │
-│      API REST       │
-└──────────┬──────────┘
+┌──────────────────────┐
+│  3. Node.js +        │
+│     Express          │
+│  Servidor Web / API  │
+│                      │
+│ • Recebe os dados    │
+│ • Valida informações │
+│ • Chama a IA         │
+│ • Retorna resultado  │
+└──────────┬───────────┘
            │
-           │ Chamada
+           │ Classificação
            ▼
-┌─────────────────────┐
-│ Inteligência        │
-│ Artificial           │
-│                     │
-│ Decision Tree       │
-│ Classificação       │
-└──────────┬──────────┘
+┌──────────────────────┐
+│  4. Python           │
+│  Inteligência        │
+│  Artificial          │
+│                      │
+│ • Decision Tree      │
+│ • Classificação      │
+│   das medições       │
+└──────────┬───────────┘
            │
            │ Resultado
            ▼
-┌─────────────────────┐
-│    Interface Web    │
-│                     │
-│ ADC / CO₂           │
-│ Classificação       │
-│ Histórico            │
-│ Estatísticas        │
-│ Estado do filtro    │
-└─────────────────────┘
+┌──────────────────────┐
+│  5. Interface Web    │
+│                      │
+│ • Leitura atual      │
+│ • Classificação      │
+│ • Histórico          │
+│ • Estatísticas       │
+│ • Estado do filtro   │
+└──────────────────────┘
+
 ⚙️ Funcionamento
 1. Aquisição de dados — STM32
 
@@ -421,7 +436,7 @@ Ela contém recursos para simulação e testes da comunicação serial, permitin
 🎥 Vídeo de apresentação
 
 Vídeo de apresentação:
-🔗 Adicionar aqui o link do vídeo no YouTube.
+🔗 link aqui
 
 O vídeo deve apresentar o funcionamento completo do sistema, incluindo a aquisição da leitura, comunicação entre os módulos, classificação e visualização na interface Web.
 
