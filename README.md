@@ -43,6 +43,7 @@ Interface Web
 
 O sistema é dividido em 5 etapas principais:
 
+```text
 1. STM32F103C8
    ├── Leitura do sensor analógico
    ├── Filtro de média móvel
@@ -74,6 +75,8 @@ O sistema é dividido em 5 etapas principais:
    ├── Histórico
    ├── Estatísticas
    └── Estado do filtro
+````
+
 🔄 Comunicação
 Etapa	Comunicação
 STM32 → Gateway C#	USB CDC / Porta COM
