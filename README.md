@@ -416,6 +416,7 @@ funcionamento do STM32;
 comunicação entre os módulos;
 classificação por IA;
 funcionamento da interface Web.
+
 📚 Projeto Integrado
 
 O projeto integra conhecimentos das seguintes disciplinas:
