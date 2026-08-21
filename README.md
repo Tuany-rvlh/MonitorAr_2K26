@@ -28,6 +28,7 @@ visualização das informações.
 O projeto simula uma aplicação distribuída semelhante às utilizadas em sistemas de Internet das Coisas (IoT).
 
 Fluxo principal
+````text
 Sensor
   ↓
 STM32
@@ -39,6 +40,8 @@ API Node.js + Express
 Python / IA
   ↓
 Interface Web
+````
+
 🧩 Arquitetura do sistema
 
 O sistema é dividido em 5 etapas principais:
@@ -212,6 +215,7 @@ JSON	Comunicação entre módulos
 HTTP	Comunicação entre aplicações
 Git/GitHub	Controle de versão
 📁 Estrutura do projeto
+```text
 MonitorAr_2K26/
 │
 ├── ProjetoIntegrado_2K26/
@@ -240,6 +244,8 @@ MonitorAr_2K26/
 ├── package.json
 ├── package-lock.json
 └── .gitignore
+```
+
 🚀 Como executar
 Pré-requisitos
 
@@ -399,8 +405,8 @@ Ela contém recursos para simulação e testes da comunicação pela Porta COM, 
 🎥 Vídeo de apresentação
 
 Vídeo:
-🔗 Adicionar aqui o link do vídeo no YouTube.
-
+🔗[Vídeo de Funcionamneto
+](https://youtu.be/iM--X4UL1Fw?feature=shared)
 O vídeo apresenta:
 
 funcionamento do STM32;
